@@ -37,7 +37,7 @@
         var colorTypes = ["red", "green", "blue", "pink", "orange", "yellow", "white"];
 
         var shapeIdx = this.index % shapeTypes.length;
-        var shapePos = Math.floor(Math.random() * 100) % 4;
+        var shapePos = this.index % 4;
         var colorIdx = this.index % colorTypes.length;
 
         //console.log("第%d块, shape: %s", this.index, shapeTypes[shapeIdx]);
@@ -50,7 +50,7 @@
 
         this.score = 0;
         this.index = 0;
-        this.strategy.rowsEliminated -= 0.1;
+        this.strategy.rowsEliminated += 0.1;
     };
 
     GameScene.prototype.startGame = function() {
