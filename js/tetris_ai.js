@@ -14,7 +14,7 @@
     * @brief	生成可行落点和路径线路
     */
     MoveGenerator.prototype.generate = function(tetrisUnit, shape) {
-
+        console.log("shape: ", shape);
         var keymapFunc = function(x, y, idx) {
             return "" + x + ":" + y + ":" + idx;
         }
@@ -128,6 +128,7 @@
 
         // 1) 生成所有可行的落点, 以及对应的路径线路
         var allMoves = this.generator.generate(tetrisUnit, shape);
+        console.log("allMoves: ", allMoves);
 
         // 2) 遍历每个可行的落点, 选取最优的局面落点
         for ( var i = 0; i < allMoves.length; i++ ) {
@@ -145,6 +146,8 @@
                 bestMove = allMoves[i].moves;
             }
         }
+
+        console.log("bsetMove: ", bestMove);
 
         // 3) 返回最优可行落点, 及其路径线路
         return {score:bestScore, action_moves:bestMove};
