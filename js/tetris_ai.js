@@ -14,7 +14,7 @@
     * @brief	生成可行落点和路径线路
     */
     MoveGenerator.prototype.generate = function(tetrisUnit, shape) {
-        console.log("shape: ", shape);
+        //console.log("shape: ", shape);
         var keymapFunc = function(x, y, idx) {
             return "" + x + ":" + y + ":" + idx;
         }
@@ -28,7 +28,7 @@
         var boards = tetrisUnit.boards;
         var rownum = tetrisUnit.row;
         var colnum = tetrisUnit.col;
-        var shapeArrs = shape.shapes;
+        var shapeArrs = shape.offsets;
 
         var occupy = {}
 
@@ -40,10 +40,10 @@
         while ( head < actionQueues.length )  {
             var step = actionQueues[head];
 
-            // 1). 向左移动一步
-            var tx = step.x - 1;
-            var ty = step.y;
-            var tidx = step.idx;
+            // 3). 旋转一步
+            tx = step.x;
+            ty = step.y;
+            tidx = (step.idx + 1) % 4;
             if ( tetrisUnit.checkAvailable(tx, ty, shapeArrs[tidx]) ) {
                 var key = keymapFunc(tx, ty, tidx);
                 if ( !occupy.hasOwnProperty(key) ) {
@@ -64,10 +64,10 @@
                 }
             }
 
-            // 3). 旋转一步
-            tx = step.x;
-            ty = step.y;
-            tidx = (step.idx + 1) % 4;
+            // 1). 向左移动一步
+            var tx = step.x - 1;
+            var ty = step.y;
+            var tidx = step.idx;
             if ( tetrisUnit.checkAvailable(tx, ty, shapeArrs[tidx]) ) {
                 var key = keymapFunc(tx, ty, tidx);
                 if ( !occupy.hasOwnProperty(key) ) {
@@ -110,11 +110,12 @@
         this.generator = new MoveGenerator();
         this.evalutor = new PierreDellacherieEvaluator();
         this.landingHeight = -4.500158825082766;
-        this.rowsEliminated = 3.4181268101392694;
+        this.rowsEliminated = 0.9181268101392694;
         this.rowTransitions = -3.2178882868487753;
         this.colTransitions = -9.348695305445199;
         this.emptyHoles = -7.899265427351652;
         this.wellNums = -3.3855972247263626;
+        this.lowGridNum = 0;
     }
 
     /*
@@ -128,13 +129,13 @@
 
         // 1) 生成所有可行的落点, 以及对应的路径线路
         var allMoves = this.generator.generate(tetrisUnit, shape);
-        console.log("allMoves: ", allMoves);
+        //console.log("allMoves: ", allMoves);
 
         // 2) 遍历每个可行的落点, 选取最优的局面落点
         for ( var i = 0; i < allMoves.length; i++ ) {
             var step = allMoves[i].last;
 
-            var shapeArrs = shape.shapes;
+            var shapeArrs = shape.offsets;
             var bkBoards = tetrisUnit.applyAction2Data(step.x, step.y, shapeArrs[step.idx]);
 
             // 2.1) 对每个潜在局面进行评估
@@ -147,7 +148,7 @@
             }
         }
 
-        console.log("bsetMove: ", bestMove);
+        //console.log("bsetMove: ", bestMove);
 
         // 3) 返回最优可行落点, 及其路径线路
         return {score:bestScore, action_moves:bestMove};
@@ -164,13 +165,32 @@
         var ty = shape.y;
         var shapeArr = shape.shapeArr;
 
-        for ( var i = 0; i < 4; i++ ) {
-            for ( var j = 0; j < 4; j++ ) {
-                if ( shapeArr[i][j] === 1 ) {
-                    return rownum - (ty + i);
-                }
+        // for ( var i = 0; i < 4; i++ ) {
+        //     for ( var j = 0; j < 4; j++ ) {
+        //         if ( shapeArr[i][j] === 1 ) {
+        //             return rownum - (ty + i);
+        //         }
+        //     }
+        // }
+        // var maxY = 0;
+        // for (var i = 0; i < 4; i++) {
+        //     var offset = shapeArr[i];
+        //     var offsetX = offset[0];
+        //     var offsetY = offset[1];
+        //     if (offsetY > maxY) {
+        //         maxY = offsetY;
+        //     }
+        // }
+        var minY = 0;
+        for (var i = 0; i < 4; i++) {
+            var offset = shapeArr[i];
+            var offsetX = offset[0];
+            var offsetY = offset[1];
+            if (offsetY < minY) {
+                minY = offsetY;
             }
         }
+        return rownum - ty - offsetY;
     }
 
     // @brief 消行个数
@@ -182,6 +202,7 @@
         var ty = shape.y;
         var shapeArr = shape.shapeArr;
 
+        var boardsNum = 0;
         var eliminatedNum = 0;
         var eliminatedGridNum = 0;
         for ( var i = 0; i < rownum; i++ ) {
@@ -189,20 +210,37 @@
             for ( var j = 0; j < colnum; j++ ) {
                 if ( boards[i][j] == 0 ) {
                     flag = false;
-                    break;
+                    //break;
+                } else {
+                    boardsNum++;
                 }
             }
             if ( flag === true ) {
                 eliminatedNum++;
-                if ( i >= ty && i < ty + 4 ) {
-                    for ( var s = 0; s < 4; s++ ) {
-                        if ( shapeArr[i - ty][s] === 1 ) {
-                            eliminatedGridNum++;
-                        }
+                // if ( i >= ty && i < ty + 4 ) {
+                //     for ( var s = 0; s < 4; s++ ) {
+                //         if ( shapeArr[i - ty][s] === 1 ) {
+                //             eliminatedGridNum++;
+                //         }
+                //     }
+                // }
+                for (var idx = 0; idx < 4; idx++) {
+                    var offset = shapeArr[idx];
+                    var offsetX = offset[0];
+                    var offsetY = offset[1];
+                    if (ty + offsetY == i) {
+                        eliminatedGridNum++;
                     }
                 }
             }
         }
+        // var rs = 0;
+        // switch (eliminatedNum) {
+        //     case 1: rs = boardsNum; break;
+        //     case 2: rs = 3 * boardsNum; break;
+        //     case 3: rs = 6 * boardsNum; break;
+        //     case 4: rs = 10 * boardsNum; break;
+        // }
         return eliminatedNum * eliminatedGridNum;
     }
 
@@ -336,6 +374,19 @@
 
     }
 
+    // @brief 10层以内的方块数
+    function lowGridNum(boards) {
+        var gridNum = 0;
+        for ( var i = 12; i < rownum; i++ ) {
+            for ( var j = 0; j < colnum; j++ ) {
+                if ( boards[i][j] == 1 ) {
+                    gridNum++;
+                }
+            }
+        }
+        return gridNum;
+    }
+
     function Evaluator() {
     }
 
@@ -355,6 +406,7 @@
                 + ai.colTransitions * colTransitions(boards)                 // 列变化
                 + ai.emptyHoles * emptyHoles(boards)                     // 空洞个数
                 + ai.wellNums * wellNums(boards);                     // 井数
+                + ai.lowGridNum * lowGridNum(boards);                 // 10层以下方块数
     }
 
     window.PierreDellacherieEvaluator = PierreDellacherieEvaluator;
