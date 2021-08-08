@@ -143,7 +143,7 @@
         this.tetrisUnit.reset();
         this.timestamp = new Date().getTime();
 
-        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape, this.index-1);
         // var shapeNum = 3;
         // var shapeArr = new Array(shapeNum);
         // for (var i = 0; i < shapeNum; i++) {
@@ -220,7 +220,7 @@
                         this.startGame();
                     } else {
                         // *)
-                        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+                        var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape, this.index-1);
                         // var shapeNum = 3;
                         // var shapeArr = new Array(shapeNum);
                         // for (var i = 0; i < shapeNum; i++) {

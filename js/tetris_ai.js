@@ -110,7 +110,7 @@
         this.generator = new MoveGenerator();
         this.evalutor = new PierreDellacherieEvaluator();
         this.landingHeight = -4.500158825082766;        // 下落高度     range [1, 20]        
-        this.rowsEliminated = 0.0181268101392694;       // 消行个数    range [0, 16]
+        this.rowsEliminated = 2.0181268101392694;       // 消行个数    range [0, 16]
         this.rowTransitions = -3.2178882868487753;      // 行变换       range [0, 20]// 列变化      range [0, 10]
         this.colTransitions = -9.348695305445199;       // 列变化      range [0, 10]
         this.emptyHoles = -7.899265427351652;           // 空洞个数        range [0, 50]
@@ -122,7 +122,7 @@
      * @brief 作出最优的策略
      * @return  {dest:{x:{x}, y:{y}, idx:{idx}}, [{action_list}]}
      */
-    AIStrategy.prototype.makeBestDecision = function (tetrisUnit, shape) {
+    AIStrategy.prototype.makeBestDecision = function (tetrisUnit, shape, index) {
 
         var bestMove = null;
         var bestScore = -1000000;
@@ -139,7 +139,7 @@
             var bkBoards = tetrisUnit.applyAction2Data(step.x, step.y, shapeArrs[step.idx]);
 
             // 2.1) 对每个潜在局面进行评估
-            var tscore = this.evalutor.evaluate(this, bkBoards, { x: step.x, y: step.y, shapeArr: shapeArrs[step.idx] });
+            var tscore = this.evalutor.evaluate(this, bkBoards, { x: step.x, y: step.y, shapeArr: shapeArrs[step.idx], index: index });
 
             // 2.2) 选取更新最好的落点和路径线路
             if (bestMove === null || tscore > bestScore) {
@@ -284,7 +284,7 @@
         //     case 3: rs = 6 * boardsNum; break;
         //     case 4: rs = 10 * boardsNum; break;
         // }
-        if (curLine > 12) {
+        if (shape.index < 5000) {
             if (hightLine > 20) {
                 return -eliminatedNum * eliminatedGridNum * 4;
             } else if (hightLine > 18) {
@@ -294,17 +294,28 @@
             } else if (hightLine > 14) {
                 return -eliminatedNum * eliminatedGridNum * 1;
             }
-        } else {
-            if (hightLine > 20) {
-                return eliminatedNum * eliminatedGridNum * 4;
-            } else if (hightLine > 18) {
-                return eliminatedNum * eliminatedGridNum  * 3;
-            } else if (hightLine > 16) {
-                return eliminatedNum * eliminatedGridNum * 2;
-            } else if (hightLine > 14) {
-                return eliminatedNum * eliminatedGridNum * 1;
-            }
         }
+        // if (curLine > 12) {
+        //     if (hightLine > 20) {
+        //         return -eliminatedNum * eliminatedGridNum * 4;
+        //     } else if (hightLine > 18) {
+        //         return -eliminatedNum * eliminatedGridNum  * 3;
+        //     } else if (hightLine > 16) {
+        //         return -eliminatedNum * eliminatedGridNum * 2;
+        //     } else if (hightLine > 14) {
+        //         return -eliminatedNum * eliminatedGridNum * 1;
+        //     }
+        // } else {
+        //     if (hightLine > 20) {
+        //         return eliminatedNum * eliminatedGridNum * (hightLine - curLine) * 4;
+        //     } else if (hightLine > 18) {
+        //         return eliminatedNum * eliminatedGridNum * (hightLine - curLine) * 3;
+        //     } else if (hightLine > 16) {
+        //         return eliminatedNum * eliminatedGridNum * (hightLine - curLine) * 2;
+        //     } else if (hightLine > 14) {
+        //         return eliminatedNum * eliminatedGridNum * (hightLine - curLine) * 1;
+        //     }
+        // }
 
         return eliminatedNum * eliminatedGridNum;
     }
