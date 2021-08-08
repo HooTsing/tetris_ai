@@ -60,7 +60,7 @@
         var lastMoveType = "";
         var moveNum = 0;
         var i = 1;
-        for (; i<len; i++) {
+        for (; i < len; i++) {
             var curStep = this.moves[i];
             var curMoveType = "";
             if (curStep.x > lastStep.x) {
@@ -144,6 +144,14 @@
         this.timestamp = new Date().getTime();
 
         var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+        // var shapeNum = 3;
+        // var shapeArr = new Array(shapeNum);
+        // for (var i = 0; i < shapeNum; i++) {
+        //     shapeArr[i] = this.createShape();
+        // }
+        //var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+
+
         this.moves = moveAns.action_moves;
         this.generateCmd();
     }
@@ -213,6 +221,12 @@
                     } else {
                         // *)
                         var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, this.currentShape);
+                        // var shapeNum = 3;
+                        // var shapeArr = new Array(shapeNum);
+                        // for (var i = 0; i < shapeNum; i++) {
+                        //     shapeArr[i] = this.createShape();
+                        // }
+                        // var moveAns = this.strategy.makeBestDecision(this.tetrisUnit, shapeArr);
                         this.moves = moveAns.action_moves;
                         this.generateCmd();
                     }
@@ -279,7 +293,7 @@
         ctx.fillText("    " + this.score, 220, 156);
 
         ctx.fillText("No.: ", 220, 174);
-        ctx.fillText("      " + (this.index-1), 220, 192);
+        ctx.fillText("      " + (this.index - 1), 220, 192);
     };
 
     // 测试是否可以
